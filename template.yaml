@@ -1,0 +1,131 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: >-
+  Tarako API Resource template
+
+Parameters:
+  PrNumber:
+    Type: String
+    Description: "PR number"
+    Default: "dev"
+  OpenAiApiKey:
+    Type: String
+    Description: "open ai api key"
+
+Globals:
+  Function:
+    Timeout: 120
+    Runtime: python3.10
+    Environment:
+      Variables:
+        PR_NUM: !Ref PrNumber
+    Layers:
+      - !Ref LambdaLayer
+
+Resources:
+  ApiGateway:
+    Type: "AWS::Serverless::Api"
+    Properties:
+      Name: !Sub tut-chat-api-${PrNumber}
+      StageName: dev
+      Cors:
+        AllowOrigin: "'*'"
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-CSRF-TOKEN'"
+
+  LambdaLayer:
+    Type: 'AWS::Serverless::LayerVersion'
+    Properties:
+      LayerName: !Sub ChatLambdaLayer-${PrNumber}
+      Description: 'Tarako Lambda Layer'
+      ContentUri: ./layer/
+      CompatibleRuntimes:
+        - python3.10
+      RetentionPolicy: Retain
+    Metadata:
+      BuildMethod: python3.10
+
+  LambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub ChatLambdaExecutionRole-${PrNumber}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: DynamoDBAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:*
+                Resource: '*'
+
+  QuestionResponseFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/
+      Handler: post.lambda_handler
+      FunctionName: !Sub Chat-post-question-response-${PrNumber}
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        QuestionResponseEvent:
+          Type: Api
+          Properties:
+            Path: /chat
+            Method: post
+            RestApiId: !Ref ApiGateway
+
+  QuestionResponseTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: !Sub Chat-QuestionResponseTable-${PrNumber}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: question_id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: question_id
+          KeyType: HASH
+
+  # # チャットボットの履歴を残す場合は、これを参考に作ること。
+  # ChatHistoryTable:
+  #   Type: AWS::DynamoDB::Table
+  #   Properties:
+  #     TableName: !Sub Chat-ChatHistoryTable-${PrNumber}
+  #     BillingMode: PAY_PER_REQUEST
+  #     AttributeDefinitions:
+  #       - AttributeName: chat_id
+  #         AttributeType: S
+  #       - AttributeName: timestamp
+  #         AttributeType: S
+  #       - AttributeName: user_id
+  #         AttributeType: S
+  #     KeySchema:
+  #       - AttributeName: chat_id
+  #         KeyType: HASH
+  #     GlobalSecondaryIndexes:
+  #       - IndexName: UserIndex
+  #         KeySchema:
+  #           - AttributeName: user_id
+  #             KeyType: HASH
+  #         Projection:
+  #           ProjectionType: ALL
+  #       - IndexName: UserDateIndex
+  #         KeySchema:
+  #           - AttributeName: user_id
+  #             KeyType: HASH
+  #           - AttributeName: timestamp
+  #             KeyType: RANGE
+  #         Projection:
+  #           ProjectionType: ALL
+  #
+Outputs:
+  ApiUrl:
+    Description: 'API Gateway endpoint URL for Prod stage'
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/dev'
