@@ -1,0 +1,41 @@
+name: Delete Stack
+on:
+  workflow_call:
+    inputs:
+      stack-name:
+        description: 'Stack Name'
+        required: true
+        type: string
+    secrets:
+      AWS_ACCOUNT_ID:
+        description: 'AWS ACCOUT'
+        required: true
+      AWS_GITHUB_OIDC_ROLE_NAME:
+        description: 'AWS GitHub OIDC Role Name'
+        required: true
+
+env:
+  AWS_REGION: 'ap-northeast-1'
+
+jobs:
+  delete-stack:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
+
+      - name: Get Caller Identity
+        run: aws sts get-caller-identity
+
+      - name: Delete Stack
+        run: aws cloudformation delete-stack --stack-name ${{ inputs.stack-name }}
+
