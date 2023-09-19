@@ -1,0 +1,78 @@
+openapi: 3.0.0
+info:
+  title: TUT-Chatbot
+  version: "0.1"
+  description: TUTで用いられる、独自チャットボット
+
+paths:
+  /chat:
+    post:
+      tags:
+        - chat
+      operationId: post-chat
+      description: チャットの受け口
+      requestBody:
+        $ref: "#/components/requestBodies/ChatRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/ChatResponse"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+
+components:
+  schemas:
+    QuestionId:
+      type: object
+      properties:
+        quetion_id:
+          type: integer
+          min: 0
+          readOnly: false
+          example: 0
+    FreeForm:
+      type: object
+      properties:
+        free_form:
+          type: string
+          readOnly: false
+          example: サイトマップがどこにあるか教えて下さい。
+    ChatResponseBody:
+      type: object
+      description: Chat response body
+      properties:
+        next_choices:
+          type: array
+          description: 固定レスポンスの場合の次の選択肢。空の場合もある
+          items:
+            type: string
+          example:
+            - hoge
+            - fuga
+        free_response:
+          type: string
+          description: 確実に含まれる応答文。
+  requestBodies:
+    ChatRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            oneOf: # どちらか一つが含まれる
+              - $ref: "#/components/schemas/QuestionId"
+              - $ref: "#/components/schemas/FreeForm"
+          examples:
+            ConstQuestionId:
+              value:
+                quetion_id: 0
+            FreeForm:
+              value:
+                free_form: サイトマップがどこにあるか教えて下さい。
+  responses:
+    404NotFound:
+      description: The specified resource was not found.
+    ChatResponse:
+      description: チャットの応答
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ChatResponseBody"
