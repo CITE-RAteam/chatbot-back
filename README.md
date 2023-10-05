@@ -1,5 +1,26 @@
 # TUT Chatbot
 
+## dynamodbにデータを新規登録する際の形式
+
+dynamodbに登録する際は以下のjson形式を使用して下さい
+
+```json
+{
+  "question_id": "38b97aa6-61e6-4cb0-9619-408f02e198e4", # UUIDv4
+  "next_choices": [
+    {
+      "choice_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "choice_text": "hogeの方法" # 提示する選択肢のテキスト
+    },
+    {
+      "choice_id": "9d4da5a1-350f-4a42-a27e-bc77f3d33099",
+      "choice_text": "barの方法"
+    }
+  ],
+  "free_response": "fugaの方法はこちらです。" # 問題の解決方法や、選択肢の説明
+}
+```
+
 ## setup aws-cli
 
 1. AWSアカウントを発行する
