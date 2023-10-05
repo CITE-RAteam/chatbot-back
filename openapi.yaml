@@ -44,13 +44,20 @@ components:
           type: array
           description: 固定レスポンスの場合の次の選択肢。空の場合もある
           items:
-            type: string
-          example:
-            - hoge
-            - fuga
+            type: object
+            properties:
+              choice_id:
+                type: string
+                format: uuid
+                readOnly: true
+              choice_text:
+                type: string
+                readOnly: false
+                example: hogeの方法
         free_response:
           type: string
           description: 確実に含まれる応答文。
+          example: fugaの方法はこちらです。
   requestBodies:
     ChatRequest:
       required: true
