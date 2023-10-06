@@ -1,14 +1,28 @@
+import json
 import os
+from decimal import Decimal
 
 import boto3
 from boto3.dynamodb.conditions import Key
 
 PR_NUM = os.environ["PR_NUM"]
 
-QA_TABLE = f"Chat-QuestionResponseTable-{PR_NUM}"
+QA_TABLE = f"CITE-Chat-QuestionResponseTable-{PR_NUM}"  # template.yamlのTableNameと合わせる
 
 dynamodb = boto3.resource("dynamodb")
 qa_table = dynamodb.Table(QA_TABLE)
+
+
+def translate_object(obj):
+    if isinstance(obj, Decimal):
+        return int(obj)
+    if isinstance(obj, set):
+        return list(obj)
+    return obj
+
+
+def json_dumps(obj):
+    return json.dumps(obj, default=translate_object, ensure_ascii=False)
 
 
 def get_all_items(table) -> list:
