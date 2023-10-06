@@ -7,7 +7,7 @@ on:
 
 jobs:
   delete-stack:
-    uses: ./.github/workflows/delete-stack-template.yaml
+    uses: ./.github/workflows/delete_stack_template.yaml
     with:
       stack-name: debug-env-${{ github.event.number }}
     secrets:

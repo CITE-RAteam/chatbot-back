@@ -10,7 +10,7 @@ jobs:
       (github.event.pull_request.action != 'opened' ||
       github.event.pull_request.action != 'reopened')
       && contains(github.event.pull_request.labels.*.name, 'with_delete')
-    uses: ./.github/workflows/delete-stack-template.yaml
+    uses: ./.github/workflows/delete_stack_template.yaml
     with:
       stack-name: debug-env-${{ github.event.pull_request.number }}
     secrets:
