@@ -15,9 +15,9 @@ jobs:
       contents: read
       pull-requests: write
     with:
-      pr-number: dev
-      stack-name: dev
-      s3-dir: dev
+      pr-number: main
+      stack-name: CITERA-Chatbot-back-main
+      s3-dir: main
     secrets:
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
