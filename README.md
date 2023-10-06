@@ -6,14 +6,14 @@ dynamodbに登録する際は以下のjson形式を使用して下さい
 
 ```json
 {
-  "question_id": "38b97aa6-61e6-4cb0-9619-408f02e198e4", # UUIDv4
-  "next_choices": [
+  "question_id": 1000, # int形式
+  "next_choices": [ # 必須項目では無いので、あってもなくても構いません。
     {
-      "choice_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "choice_id": 2000,
       "choice_text": "hogeの方法" # 提示する選択肢のテキスト
     },
     {
-      "choice_id": "9d4da5a1-350f-4a42-a27e-bc77f3d33099",
+      "choice_id": 2001,
       "choice_text": "barの方法"
     }
   ],
@@ -23,10 +23,12 @@ dynamodbに登録する際は以下のjson形式を使用して下さい
 
 ## setup aws-cli
 
+1. aws-cliをインストールする
+1. `aws configure`を実行しておく
 1. AWSアカウントを発行する
 1. AWSアクセスキーをIAMコンソールから発行する
-1. aws-cliをインストールする
-1. `aws configure`を実行し、先程発行したアクセスキーを登録する
+1. 発行した情報を、`aws configure`にコピペする
+    - この順番をとることで、セキュリティリスクとなるクレデンシャル情報の流出を極限まで抑えることができる
 
 **注意点**  
 複数のIAMユーザーを使い分けるには、プロファイルを設定する必要が有ります。  
@@ -45,7 +47,7 @@ dynamodbに登録する際は以下のjson形式を使用して下さい
 
 ### IDプロバイダに付与するPolicyの一例
 
-ここでは、多くの権限が付与されていますが、本来は必要最低限の権限を付与するよう、注意が必要です。
+ここでは多くの権限が付与されていますが、本来は必要最低限の権限を付与するよう、注意が必要です。
 
 ```json
 {
@@ -81,8 +83,8 @@ dynamodbに登録する際は以下のjson形式を使用して下さい
 
 ### set environment
 
-`.open_ai_api_key`ファイルを作成し、OpenAIのAPIキーを追加
-`.pr_num`ファイルを作成し、任意のPR番号か`dev`と記載する
+`.open_ai_api_key`ファイルを作成し、OpenAIのAPIキーを追加  
+`.pr_num`ファイルを作成し、任意のPR番号か`main`と記載する
 
 ### local 実行
 
