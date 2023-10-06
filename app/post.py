@@ -1,10 +1,10 @@
 import json
+import traceback
 
 from responses import post_response
 from table_utils import get_item, json_dumps, qa_table
 
 
-# TODO: プロダクト用に修正する
 def lambda_handler(event, context):
     body = event.get("body")
     if body is None:
@@ -40,11 +40,11 @@ def lambda_handler(event, context):
         print(e)
         return post_response(501, f"Not Implemented: {e}")
     except Exception as e:
-        print(e)
-        return post_response(500, f"Internal Server Error: {e}")
+        traceback.print_exc()
+        return post_response(500, "Internal Server Error")
 
     return post_response(200, json_dumps(response))
 
 
 def get_next_question(question_id: int):
-    return get_item(qa_table, "question_id", str(question_id))
+    return get_item(qa_table, "question_id", question_id)

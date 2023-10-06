@@ -66,12 +66,12 @@ def get_items(table, index_name: str, expr: Key) -> list:
     return response["Items"]
 
 
-def get_item(table, key: str, value: str) -> dict:
+def get_item(table, key: str, value) -> dict:
     """テーブルからアイテムを取得する
     Args:
         table (boto3.resource.Table): テーブル
-        key (str): キー
-        value (str): 値
+        key (str): プライマリキー名
+        value: 値
     Returns:
         dict: アイテム
     Raises:
